@@ -8,7 +8,7 @@ function App() {
       </p>
 
       <h2>Planned Features</h2>
-      <ul>
+      <ul style={{ listStylePosition: "inside", padding: 0 }}>
         <li>Quick Add task input</li>
         <li>Daily priority list</li>
         <li>Weekly calendar view</li>
