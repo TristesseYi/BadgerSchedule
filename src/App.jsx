@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import CustomNavbar from './components/CustomNavbar'
 import HomePage from './pages/HomePage'
 import WeeklyPage from './pages/WeeklyPage'
+import CompletedPage from './pages/CompletedPage'
 
 function App() {
   const defaultTasks = [
@@ -265,6 +266,7 @@ function App() {
   return (
     <BrowserRouter basename="/BadgerSchedule">
       <CustomNavbar />
+
       <Routes>
         <Route
           path="/"
@@ -279,7 +281,10 @@ function App() {
             />
           }
         />
+
         <Route path="/weekly" element={<WeeklyPage tasks={tasks} />} />
+
+        <Route path="/completed" element={<CompletedPage tasks={tasks} />} />
       </Routes>
     </BrowserRouter>
   )
