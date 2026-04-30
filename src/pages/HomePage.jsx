@@ -4,6 +4,7 @@ import QuickAdd from '../components/QuickAdd'
 import TaskForm from '../components/TaskForm'
 import TaskList from '../components/TaskList'
 import SearchFilterSort from '../components/SearchFilterSort'
+import PageHeader from '../components/PageHeader'
 
 function HomePage({
   tasks,
@@ -67,11 +68,10 @@ function HomePage({
     <Container className="py-4">
       <Row className="mb-4">
         <Col>
-          <h1>Home Dashboard</h1>
-          <p>
-            BadgerSchedule helps students quickly create, organize, and manage
-            tasks in one place.
-          </p>
+          <PageHeader
+            title="Home Dashboard"
+            subtitle="BadgerSchedule helps students quickly create, organize, and manage tasks in one place."
+          />
         </Col>
       </Row>
 

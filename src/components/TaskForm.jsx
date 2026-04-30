@@ -39,47 +39,60 @@ function TaskForm({ addTask }) {
     <Card className="mb-4 shadow-sm">
       <Card.Body>
         <Card.Title>Add a Task</Card.Title>
+
         <Form onSubmit={handleSubmit}>
           <Row className="g-3">
             <Col xs={12}>
-              <Form.Control
-                type="text"
-                placeholder="Task title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+              <Form.Group controlId="taskTitleInput">
+                <Form.Label>Task title</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Task title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </Form.Group>
             </Col>
 
             <Col md={4} sm={12}>
-              <Form.Select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option>Homework</option>
-                <option>Meeting</option>
-                <option>Health</option>
-                <option>Personal</option>
-              </Form.Select>
+              <Form.Group controlId="taskCategorySelect">
+                <Form.Label>Category</Form.Label>
+                <Form.Select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  <option>Homework</option>
+                  <option>Meeting</option>
+                  <option>Health</option>
+                  <option>Personal</option>
+                </Form.Select>
+              </Form.Group>
             </Col>
 
             <Col md={4} sm={12}>
-              <Form.Control
-                type="text"
-                placeholder="MM/DD/YYYY"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-              />
+              <Form.Group controlId="taskDateInput">
+                <Form.Label>Due date</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="MM/DD/YYYY"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                />
+              </Form.Group>
             </Col>
 
             <Col md={4} sm={12}>
-              <Form.Select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-              >
-                <option>High</option>
-                <option>Medium</option>
-                <option>Low</option>
-              </Form.Select>
+              <Form.Group controlId="taskPrioritySelect">
+                <Form.Label>Priority</Form.Label>
+                <Form.Select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                >
+                  <option>High</option>
+                  <option>Medium</option>
+                  <option>Low</option>
+                </Form.Select>
+              </Form.Group>
             </Col>
           </Row>
 

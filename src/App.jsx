@@ -69,12 +69,26 @@ function App() {
     return `${year}-${month}-${day}`
   }
 
-  function getNextWeekday(targetDay) {
+  function getUpcomingWeekday(targetDay) {
     const now = new Date()
     const todayDay = now.getDay()
     let diff = targetDay - todayDay
 
     if (diff < 0) {
+      diff += 7
+    }
+
+    const targetDate = new Date(now)
+    targetDate.setDate(now.getDate() + diff)
+    return formatLocalDate(targetDate)
+  }
+
+  function getNextWeekday(targetDay) {
+    const now = new Date()
+    const todayDay = now.getDay()
+    let diff = targetDay - todayDay
+
+    if (diff <= 0) {
       diff += 7
     }
 
@@ -93,75 +107,167 @@ function App() {
     return formatLocalDate(sunday)
   }
 
-  function extractDateFromQuickAdd(text) {
-    const lowerText = text.toLowerCase()
+  function getDayAfterTomorrow() {
     const now = new Date()
+    const target = new Date(now)
+    target.setDate(now.getDate() + 2)
+    return formatLocalDate(target)
+  }
 
-    if (lowerText.includes('today')) {
-      return formatLocalDate(now)
-    }
+  function parseExplicitDate(text) {
+    const now = new Date()
+    const match = text.match(/\b(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?\b/)
 
-    if (lowerText.includes('tomorrow')) {
-      const tomorrow = new Date(now)
-      tomorrow.setDate(now.getDate() + 1)
-      return formatLocalDate(tomorrow)
+    if (!match) return null
+
+    let month = Number(match[1])
+    let day = Number(match[2])
+    let year = match[3] ? Number(match[3]) : now.getFullYear()
+
+    if (match[3] && match[3].length === 2) {
+      year = 2000 + Number(match[3])
     }
 
     if (
-      lowerText.includes('end of this week') ||
-      lowerText.includes('this weekend') ||
-      lowerText.includes('this week')
+      Number.isNaN(month) ||
+      Number.isNaN(day) ||
+      Number.isNaN(year) ||
+      month < 1 ||
+      month > 12 ||
+      day < 1 ||
+      day > 31
+    ) {
+      return null
+    }
+
+    return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+  }
+
+  function extractDateFromQuickAdd(text) {
+    const lowerText = text.toLowerCase()
+
+    const explicitDate = parseExplicitDate(text)
+    if (explicitDate) return explicitDate
+
+    if (/\bday after tomorrow\b/.test(lowerText)) {
+      return getDayAfterTomorrow()
+    }
+
+    if (/\b(by|on|at)?\s*tomorrow\b/.test(lowerText)) {
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      return formatLocalDate(tomorrow)
+    }
+
+    if (/\b(by|on|at)?\s*(today|tonight)\b/.test(lowerText)) {
+      return formatLocalDate(new Date())
+    }
+
+    if (
+      /\b(by\s+the\s+end\s+of\s+this\s+week)\b/.test(lowerText) ||
+      /\b(by\s+end\s+of\s+this\s+week)\b/.test(lowerText) ||
+      /\b(end\s+of\s+this\s+week)\b/.test(lowerText) ||
+      /\b(end\s+of\s+week)\b/.test(lowerText) ||
+      /\b(this\s+weekend)\b/.test(lowerText) ||
+      /\b(this\s+week)\b/.test(lowerText)
     ) {
       return getEndOfWeek()
     }
 
-    if (lowerText.includes('monday')) return getNextWeekday(1)
-    if (lowerText.includes('tuesday')) return getNextWeekday(2)
-    if (lowerText.includes('wednesday')) return getNextWeekday(3)
-    if (lowerText.includes('thursday')) return getNextWeekday(4)
-    if (lowerText.includes('friday')) return getNextWeekday(5)
-    if (lowerText.includes('saturday')) return getNextWeekday(6)
-    if (lowerText.includes('sunday')) return getNextWeekday(0)
+    if (/\bnext monday\b/.test(lowerText)) return getNextWeekday(1)
+    if (/\bnext tuesday\b/.test(lowerText)) return getNextWeekday(2)
+    if (/\bnext wednesday\b/.test(lowerText)) return getNextWeekday(3)
+    if (/\bnext thursday\b/.test(lowerText)) return getNextWeekday(4)
+    if (/\bnext friday\b/.test(lowerText)) return getNextWeekday(5)
+    if (/\bnext saturday\b/.test(lowerText)) return getNextWeekday(6)
+    if (/\bnext sunday\b/.test(lowerText)) return getNextWeekday(0)
 
-    return formatLocalDate(now)
+    if (/\b(this|on|by|at)?\s*monday\b/.test(lowerText)) return getUpcomingWeekday(1)
+    if (/\b(this|on|by|at)?\s*tuesday\b/.test(lowerText)) return getUpcomingWeekday(2)
+    if (/\b(this|on|by|at)?\s*wednesday\b/.test(lowerText)) return getUpcomingWeekday(3)
+    if (/\b(this|on|by|at)?\s*thursday\b/.test(lowerText)) return getUpcomingWeekday(4)
+    if (/\b(this|on|by|at)?\s*friday\b/.test(lowerText)) return getUpcomingWeekday(5)
+    if (/\b(this|on|by|at)?\s*saturday\b/.test(lowerText)) return getUpcomingWeekday(6)
+    if (/\b(this|on|by|at)?\s*sunday\b/.test(lowerText)) return getUpcomingWeekday(0)
+
+    return formatLocalDate(new Date())
   }
 
   function cleanQuickAddTitle(text) {
     let cleaned = text
 
-    cleaned = cleaned.replace(/\bend of this week\b/gi, '')
-    cleaned = cleaned.replace(/\bthis weekend\b/gi, '')
-    cleaned = cleaned.replace(/\bthis week\b/gi, '')
-    cleaned = cleaned.replace(/\btomorrow\b/gi, '')
-    cleaned = cleaned.replace(/\btoday\b/gi, '')
+    const patternsToRemove = [
+      /\bby the end of this week\b/gi,
+      /\bby end of this week\b/gi,
+      /\bend of this week\b/gi,
+      /\bend of week\b/gi,
+      /\bthis weekend\b/gi,
+      /\bthis week\b/gi,
+      /\bday after tomorrow\b/gi,
+      /\bby tomorrow\b/gi,
+      /\bon tomorrow\b/gi,
+      /\bat tomorrow\b/gi,
+      /\btomorrow\b/gi,
+      /\bby tonight\b/gi,
+      /\bon tonight\b/gi,
+      /\bat tonight\b/gi,
+      /\btonight\b/gi,
+      /\bby today\b/gi,
+      /\bon today\b/gi,
+      /\bat today\b/gi,
+      /\btoday\b/gi,
+      /\bnext monday\b/gi,
+      /\bnext tuesday\b/gi,
+      /\bnext wednesday\b/gi,
+      /\bnext thursday\b/gi,
+      /\bnext friday\b/gi,
+      /\bnext saturday\b/gi,
+      /\bnext sunday\b/gi,
+      /\bthis monday\b/gi,
+      /\bthis tuesday\b/gi,
+      /\bthis wednesday\b/gi,
+      /\bthis thursday\b/gi,
+      /\bthis friday\b/gi,
+      /\bthis saturday\b/gi,
+      /\bthis sunday\b/gi,
+      /\bby monday\b/gi,
+      /\bby tuesday\b/gi,
+      /\bby wednesday\b/gi,
+      /\bby thursday\b/gi,
+      /\bby friday\b/gi,
+      /\bby saturday\b/gi,
+      /\bby sunday\b/gi,
+      /\bon monday\b/gi,
+      /\bon tuesday\b/gi,
+      /\bon wednesday\b/gi,
+      /\bon thursday\b/gi,
+      /\bon friday\b/gi,
+      /\bon saturday\b/gi,
+      /\bon sunday\b/gi,
+      /\bat monday\b/gi,
+      /\bat tuesday\b/gi,
+      /\bat wednesday\b/gi,
+      /\bat thursday\b/gi,
+      /\bat friday\b/gi,
+      /\bat saturday\b/gi,
+      /\bat sunday\b/gi,
+      /\bmonday\b/gi,
+      /\btuesday\b/gi,
+      /\bwednesday\b/gi,
+      /\bthursday\b/gi,
+      /\bfriday\b/gi,
+      /\bsaturday\b/gi,
+      /\bsunday\b/gi,
+      /\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/gi,
+    ]
 
-    cleaned = cleaned.replace(/\bon monday\b/gi, '')
-    cleaned = cleaned.replace(/\bon tuesday\b/gi, '')
-    cleaned = cleaned.replace(/\bon wednesday\b/gi, '')
-    cleaned = cleaned.replace(/\bon thursday\b/gi, '')
-    cleaned = cleaned.replace(/\bon friday\b/gi, '')
-    cleaned = cleaned.replace(/\bon saturday\b/gi, '')
-    cleaned = cleaned.replace(/\bon sunday\b/gi, '')
+    patternsToRemove.forEach((pattern) => {
+      cleaned = cleaned.replace(pattern, '')
+    })
 
-    cleaned = cleaned.replace(/\bat monday\b/gi, '')
-    cleaned = cleaned.replace(/\bat tuesday\b/gi, '')
-    cleaned = cleaned.replace(/\bat wednesday\b/gi, '')
-    cleaned = cleaned.replace(/\bat thursday\b/gi, '')
-    cleaned = cleaned.replace(/\bat friday\b/gi, '')
-    cleaned = cleaned.replace(/\bat saturday\b/gi, '')
-    cleaned = cleaned.replace(/\bat sunday\b/gi, '')
-
-    cleaned = cleaned.replace(/\bmonday\b/gi, '')
-    cleaned = cleaned.replace(/\btuesday\b/gi, '')
-    cleaned = cleaned.replace(/\bwednesday\b/gi, '')
-    cleaned = cleaned.replace(/\bthursday\b/gi, '')
-    cleaned = cleaned.replace(/\bfriday\b/gi, '')
-    cleaned = cleaned.replace(/\bsaturday\b/gi, '')
-    cleaned = cleaned.replace(/\bsunday\b/gi, '')
-
-    cleaned = cleaned.replace(/\bat\b/gi, '')
-    cleaned = cleaned.replace(/\bon\b/gi, '')
+    cleaned = cleaned.replace(/\b(by|on|at)\b\s*$/gi, '')
     cleaned = cleaned.replace(/\s+/g, ' ').trim()
+    cleaned = cleaned.replace(/\s+([,.:!?])/g, '$1')
 
     return cleaned || text
   }
@@ -198,11 +304,11 @@ function App() {
     const priority = extractPriorityFromQuickAdd(text)
 
     let category = 'Personal'
-    if (lowerText.includes('homework') || lowerText.includes('study')) {
+    if (lowerText.includes('homework') || lowerText.includes('study') || lowerText.includes('quiz') || lowerText.includes('exam')) {
       category = 'Homework'
-    } else if (lowerText.includes('gym') || lowerText.includes('doctor')) {
+    } else if (lowerText.includes('gym') || lowerText.includes('doctor') || lowerText.includes('exercise')) {
       category = 'Health'
-    } else if (lowerText.includes('meeting') || lowerText.includes('call')) {
+    } else if (lowerText.includes('meeting') || lowerText.includes('call') || lowerText.includes('interview')) {
       category = 'Meeting'
     }
 
@@ -283,7 +389,6 @@ function App() {
         />
 
         <Route path="/weekly" element={<WeeklyPage tasks={tasks} />} />
-
         <Route path="/completed" element={<CompletedPage tasks={tasks} />} />
       </Routes>
     </BrowserRouter>

@@ -1,43 +1,41 @@
-import { Container, Card, Badge } from 'react-bootstrap'
+import { Badge, Card, Container } from 'react-bootstrap'
+import PageHeader from '../components/PageHeader'
+import PriorityBar from '../components/PriorityBar'
+import StatusBadge from '../components/StatusBadge'
+import CompletedSummary from '../components/CompletedSummary'
 
 function CompletedPage({ tasks }) {
   const completedTasks = tasks.filter((task) => task.status === 'Complete')
 
-  function getPriorityColor(priority) {
-    if (priority === 'High') return '#dc3545'
-    if (priority === 'Medium') return '#ffc107'
-    return '#198754'
-  }
-
   return (
-    <Container className="mt-4">
-      <h1 className="mb-4">Completed Tasks</h1>
+    <Container className="py-4">
+      <PageHeader
+        title="Completed Tasks"
+        subtitle="View all tasks that have already been marked as complete."
+      />
+
+      <CompletedSummary completedTasks={completedTasks} />
 
       {completedTasks.length === 0 ? (
-        <p>No completed tasks yet.</p>
+        <Card className="p-3 shadow-sm">
+          <p className="mb-0">No completed tasks yet.</p>
+        </Card>
       ) : (
         completedTasks.map((task) => (
           <Card key={task.id} className="mb-3 shadow-sm">
             <Card.Body>
-              <div
-                style={{
-                  height: '8px',
-                  backgroundColor: getPriorityColor(task.priority),
-                  borderRadius: '999px',
-                  marginBottom: '16px',
-                }}
-              ></div>
+              <PriorityBar priority={task.priority} />
 
-              <h3>{task.title}</h3>
+              <h2 className="h4">{task.title}</h2>
+
               <p className="mb-1">
-                Category:{' '}
-                <Badge bg="secondary">
-                  {task.category}
-                </Badge>
+                Category: <Badge bg="secondary">{task.category}</Badge>
               </p>
+
               <p className="mb-1">Due: {task.dueDate}</p>
               <p className="mb-2">Priority: {task.priority}</p>
-              <Badge bg="success">{task.status}</Badge>
+
+              <StatusBadge status={task.status} />
             </Card.Body>
           </Card>
         ))

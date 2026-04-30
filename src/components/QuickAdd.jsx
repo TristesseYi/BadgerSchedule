@@ -17,15 +17,18 @@ function QuickAdd({ addQuickTask }) {
         <Card.Text>
           Quickly create a task using one sentence.
         </Card.Text>
+
         <Form onSubmit={handleSubmit}>
-          <Form.Group>
+          <Form.Group controlId="quickAddInput">
+            <Form.Label>Quick task input</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Example: Finish CS571 homework tonight at 11 PM"
+              placeholder="Example: Finish CS571 homework tomorrow urgent"
               value={quickText}
               onChange={(e) => setQuickText(e.target.value)}
             />
           </Form.Group>
+
           <Button className="mt-3" variant="primary" type="submit">
             Add Quick Task
           </Button>

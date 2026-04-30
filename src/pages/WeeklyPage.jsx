@@ -1,4 +1,7 @@
-import { Badge, Card, Col, Container, Row } from 'react-bootstrap'
+import { Card, Col, Container, Row } from 'react-bootstrap'
+import PageHeader from '../components/PageHeader'
+import PriorityBar from '../components/PriorityBar'
+import StatusBadge from '../components/StatusBadge'
 
 function WeeklyPage({ tasks }) {
   const weekDays = [
@@ -33,14 +36,6 @@ function WeeklyPage({ tasks }) {
     if (value === 'high') return 'High'
     if (value === 'low') return 'Low'
     return 'Medium'
-  }
-
-  function getPriorityColor(priority) {
-    const normalized = normalizePriority(priority)
-
-    if (normalized === 'High') return '#dc3545'
-    if (normalized === 'Medium') return '#ffc107'
-    return '#198754'
   }
 
   function getStartOfWeek(date) {
@@ -98,7 +93,10 @@ function WeeklyPage({ tasks }) {
 
   return (
     <Container className="py-4">
-      <h1 className="mb-4">Weekly Calendar</h1>
+      <PageHeader
+        title="Weekly Calendar"
+        subtitle="View tasks scheduled for the current week, sorted by priority."
+      />
 
       <Row className="g-3">
         {displayOrder.map((day) => (
@@ -127,14 +125,7 @@ function WeeklyPage({ tasks }) {
                         marginBottom: '10px',
                       }}
                     >
-                      <div
-                        style={{
-                          height: '8px',
-                          backgroundColor: getPriorityColor(task.priority),
-                          borderRadius: '6px',
-                          marginBottom: '10px',
-                        }}
-                      ></div>
+                      <PriorityBar priority={task.priority} />
 
                       <div style={{ fontWeight: '600' }}>{task.title}</div>
                       <div style={{ fontSize: '0.9rem', color: '#6c757d' }}>
@@ -148,9 +139,7 @@ function WeeklyPage({ tasks }) {
                       </div>
 
                       <div style={{ marginTop: '8px' }}>
-                        <Badge bg={task.status === 'Complete' ? 'success' : 'warning'}>
-                          {task.status}
-                        </Badge>
+                        <StatusBadge status={task.status} />
                       </div>
                     </div>
                   ))
